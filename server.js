@@ -1,27 +1,32 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const logger = require('morgan');
+const errorHandler = require('./helpers/error-handler');
 
-// Initialize
+// initialize
 const app = express();
 
 // env config
 require('dotenv').config();
 
-// Routes
-const posts = require('./routes/api/post');
+// logger
+app.use(logger('dev'));
 
-// Database config
+// mongodb config
 mongoose
-  .connect(process.env.mongoURI, { useNewUrlParser: true })
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true })
   .then(res => console.log('Database connected'))
   .catch(err => console.log(err));
 
-// Body-parser middleware
+// body-parser middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Router middleware
-app.use('/api/posts', posts);
+// routes
+app.use('/api/auth', require('./controllers/auth.controller'));
+
+// global error handler
+app.use(errorHandler);
 
 const port = 5000 || process.env.PORT;
 
